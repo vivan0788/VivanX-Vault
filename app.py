@@ -44,12 +44,15 @@ def register():
         "vault": {"files": [], "notes": [], "contacts": []}
     })
     return '''
-    <div style="background:#000; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:sans-serif;">
-        <h1 style="color:#00f3ff; text-shadow:0 0 15px #00f3ff;">✅ Registration Successful!</h1>
-        <p style="color:#fff; font-size:1.2rem;">Aapka account ban gaya hai.</p>
-        <a href="/login" style="color:#ff00ff; text-decoration:none; border:1px solid #ff00ff; padding:10px 20px; border-radius:5px; box-shadow:0 0 10px #ff00ff; margin-top:20px;">LOGIN NOW</a>
-    </div>
-'''
+    <body style="background:#000; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; font-family:sans-serif; text-align:center;">
+        <div style="border:2px solid #00f3ff; padding:40px; border-radius:15px; box-shadow:0 0 20px #00f3ff;">
+            <h1 style="color:#00f3ff; text-shadow:0 0 10px #00f3ff; font-size:2.5rem;">VivanX Vault</h1>
+            <h2 style="color:#fff; margin:20px 0;">✅ Registration Successful!</h2>
+            <p style="color:#aaa; margin-bottom:30px;">Aapka account surakshit bana diya gaya hai.</p>
+            <a href="/login" style="background:#ff00ff; color:#fff; text-decoration:none; padding:15px 30px; border-radius:5px; font-weight:bold; box-shadow:0 0 15px #ff00ff;">LOGIN NOW</a>
+        </div>
+    </body>
+    '''
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
