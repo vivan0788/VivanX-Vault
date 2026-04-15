@@ -69,7 +69,7 @@ def login():
 @app.route('/dashboard')
 def dashboard():
     if 'username' in session:
-        # User-specific data fetch
+        # Yahan templates/dashboard.html call ho rahi hai
         return render_template('dashboard.html', username=session['username'])
     return redirect(url_for('login'))
 
