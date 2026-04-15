@@ -43,7 +43,13 @@ def register():
         "password": hashed_pw,
         "vault": {"files": [], "notes": [], "contacts": []}
     })
-    return "Registration Successful! <a href='/login'>Login Now</a>"
+    return '''
+    <div style="background:#000; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:sans-serif;">
+        <h1 style="color:#00f3ff; text-shadow:0 0 15px #00f3ff;">✅ Registration Successful!</h1>
+        <p style="color:#fff; font-size:1.2rem;">Aapka account ban gaya hai.</p>
+        <a href="/login" style="color:#ff00ff; text-decoration:none; border:1px solid #ff00ff; padding:10px 20px; border-radius:5px; box-shadow:0 0 10px #ff00ff; margin-top:20px;">LOGIN NOW</a>
+    </div>
+'''
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
