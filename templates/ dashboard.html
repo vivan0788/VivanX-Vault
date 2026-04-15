@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Private Vault</title>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; padding: 20px; }
+        .neon-border { border: 1px solid #00f3ff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #00f3ff; margin-bottom: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ff00ff; padding-bottom: 10px; margin-bottom: 20px; }
+        .logout-btn { color: #ff00ff; text-decoration: none; border: 1px solid #ff00ff; padding: 5px 15px; border-radius: 5px; }
+        .add-btn { background: #00f3ff; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2 style="color: #00f3ff; text-shadow: 0 0 5px #00f3ff;">Welcome, {{ username }}</h2>
+        <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+
+    <div class="neon-border">
+        <h3>📂 Media (Photos & Videos)</h3>
+        <p>No files uploaded yet.</p>
+        <button class="add-btn">Upload to Storage</button>
+    </div>
+
+    <div class="neon-border" style="border-color: #ff00ff; box-shadow: 0 0 10px #ff00ff;">
+        <h3>📝 Custom Notes & Contacts</h3>
+        <p>Private information is hidden from others.</p>
+        <button class="add-btn" style="background: #ff00ff; color: white;">Add New Entry</button>
+    </div>
+</body>
+</html>
