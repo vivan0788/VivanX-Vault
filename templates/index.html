@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VivanX Vault - Secure Cloud</title>
+    <style>
+        :root { --c: #00f3ff; --p: #ff00ff; --b: #050505; }
+        body { 
+            background: var(--b); color: #fff; font-family: sans-serif; 
+            margin: 0; display: flex; justify-content: center; align-items: center; 
+            height: 100vh; text-align: center;
+            background: radial-gradient(circle at center, #111 0%, #050505 100%);
+        }
+        .container { padding: 20px; width: 90%; max-width: 400px; }
+        h1 { color: var(--c); font-size: 2.5em; letter-spacing: 2px; margin-bottom: 10px; text-shadow: 0 0 15px rgba(0,243,255,0.5); }
+        p { color: #888; margin-bottom: 30px; line-height: 1.6; }
+        .btn-group { display: flex; flex-direction: column; gap: 15px; }
+        .btn { 
+            padding: 15px; border-radius: 10px; font-weight: bold; 
+            text-decoration: none; transition: 0.3s; font-size: 1.1em;
+        }
+        .login-btn { background: var(--c); color: #000; border: none; }
+        .reg-btn { background: transparent; color: var(--p); border: 2px solid var(--p); }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VIVANX VAULT</h1>
+        <p>Your private world of Media, Notes, and Contacts. Secured with Military Grade Encryption.</p>
+        
+        <div class="btn-group">
+            <a href="/login" class="btn login-btn">LOG IN</a>
+            <a href="/register" class="btn reg-btn">CREATE ACCOUNT</a>
+        </div>
+        
+        <div style="margin-top: 40px; font-size: 0.8em; color: #444;">
+            &copy; 2026 VivanX Security Systems
+        </div>
+    </div>
+</body>
+</html>
