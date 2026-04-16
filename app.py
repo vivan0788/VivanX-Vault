@@ -82,9 +82,12 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
-    if 'username' in session:
-        return render_template('dashboard.html', username=session['username'])
-    return redirect(url_for('login'))
+    try:
+        if 'username' in session:
+            return render_template('dashboard.html', username=session['username'])
+        return redirect(url_for('login'))
+    except Exception as e:
+        return f"Dashboard Error: {str(e)}"
 
 @app.route('/logout')
 def logout():
