@@ -3,17 +3,17 @@ from flask import Flask, render_template, request, redirect, session, url_for
 from flask_pymongo import PyMongo
 import bcrypt
 
-app = Flask(__name__)
+# Template folder ka raasta bilkul saaf karein Vercel ke liye
+template_dir = os.path.abspath('templates')
+app = Flask(__name__, template_folder=template_dir)
 
 # 1. Secret Key (Sessions ke liye mandatory hai)
 app.secret_key = "neon_vault_2026_key"
 
 # 2. MongoDB Connectivity
-# Vercel Environment Variable 'MONGO_URI' ka use karein
-# Agar aapne variable add nahi kiya hai, toh niche di gayi line error degi.
 uri = os.environ.get("MONGO_URI")
 if not uri:
-    # Backup: Agar environment variable na mile toh direct URI use karein (Testing ke liye)
+    # Backup URI agar environment variable nahi milta
     uri = "mongodb+srv://avinash08:Avinash10092009@vanx-tracker.qkqdovs.mongodb.net/VivanX_Vault?retryWrites=true&w=majority"
 
 app.config["MONGO_URI"] = uri
@@ -36,12 +36,11 @@ def register():
         s_key = request.form.get('secret_key')
 
         if s_key != REGISTRATION_SECRET:
-            return "<h3>Invalid Secret Key! Contact Admin.</h3>"
+            return "<h3>Invalid Secret Key!</h3>"
 
         if users.find_one({"username": uname}):
             return "<h3>User already exists! <a href='/register'>Try again</a></h3>"
 
-        # Password Hashing
         hashed_pw = bcrypt.hashpw(pw.encode('utf-8'), bcrypt.gensalt())
         
         users.insert_one({
@@ -50,17 +49,13 @@ def register():
             "vault": {"files": [], "notes": [], "contacts": []}
         })
 
-        # Bada aur Sundar Neon Success Message with Login Link
         return f'''
         <body style="background:#000; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; font-family:sans-serif; text-align:center;">
             <div style="border:2px solid #00f3ff; padding:40px; border-radius:15px; box-shadow:0 0 20px #00f3ff; width:85%;">
-                <h1 style="color:#00f3ff; text-shadow: 0 0 10px #00f3ff; font-size:2.5rem;">VivanX Vault</h1>
+                <h1 style="color:#00f3ff; text-shadow:0 0 10px #00f3ff; font-size:2.5rem;">VivanX Vault</h1>
                 <h2 style="color:#fff; margin:20px 0;">✅ Account Created!</h2>
                 <p style="color:#aaa; margin-bottom:30px; font-size:1.1rem;">Aapka registration safal raha, {uname}!</p>
-                <div style="display:flex; flex-direction:column; gap:15px; align-items:center;">
-                    <a href="/login" style="background:#ff00ff; color:#fff; text-decoration:none; padding:15px 40px; border-radius:10px; font-weight:bold; box-shadow:0 0 15px #ff00ff; font-size:1.2rem; min-width:200px;">LOGIN NOW</a>
-                    <a href="/register" style="color:#00f3ff; text-decoration:none; font-size:0.9rem; margin-top:10px;">Register Another Account</a>
-                </div>
+                <a href="/login" style="background:#ff00ff; color:#fff; text-decoration:none; padding:15px 40px; border-radius:10px; font-weight:bold; box-shadow:0 0 15px #ff00ff; font-size:1.2rem;">LOGIN NOW</a>
             </div>
         </body>
         '''
@@ -77,17 +72,22 @@ def login():
                 session['username'] = check_user['username']
                 return redirect(url_for('dashboard'))
         
-        return "<h3>Invalid Username or Password! <a href='/login'>Try again</a></h3>"
+        return "<h3>Invalid login! <a href='/login'>Try again</a></h3>"
     return render_template('login.html')
 
 @app.route('/dashboard')
 def dashboard():
     try:
         if 'username' in session:
+            # File existence check for debugging
+            target_file = os.path.join(template_dir, 'dashboard.html')
+            if not os.path.exists(target_file):
+                return f"Technical Error: dashboard.html not found at {target_file}"
+                
             return render_template('dashboard.html', username=session['username'])
         return redirect(url_for('login'))
     except Exception as e:
-        return f"Dashboard Error: {str(e)}"
+        return f"Dashboard Runtime Error: {str(e)}"
 
 @app.route('/logout')
 def logout():
