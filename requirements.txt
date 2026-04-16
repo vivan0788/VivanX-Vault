@@ -2,3 +2,4 @@ Flask
 flask-pymongo
 bcrypt
 dnspython
+cloudinary
