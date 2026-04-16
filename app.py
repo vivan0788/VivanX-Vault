@@ -48,10 +48,7 @@ def register():
         users.insert_one({
             "username": uname, 
             "password": hashed_pw,
-            "vault": {
-                "passwords":[], "notes":[], "contacts":[], 
-                "media":{"images":[], "videos":[], "audio":[]}
-            }
+            "vault": {"passwords":[], "notes":[], "contacts":[], "media":{"images":[], "videos":[], "audio":[]}}
         })
         return redirect(url_for('login'))
     return render_template('register.html')
@@ -70,13 +67,13 @@ def dashboard():
     if 'username' not in session: return redirect(url_for('login'))
     user_data = mongo.db.users.find_one({"username": session['username']})
     
+    # Crash Protection: Empty data agar field missing ho
     vault = user_data.get('vault', {})
     if 'media' not in vault:
         vault['media'] = {"images": [], "videos": [], "audio": []}
         
     return render_template('dashboard.html', username=session['username'], vault=vault)
 
-# --- Add Data Routes ---
 @app.route('/add_contact', methods=['POST'])
 def add_contact():
     mongo.db.users.update_one({"username": session['username']}, 
