@@ -1,5 +1,5 @@
-Flask
+flask
 flask-pymongo
 bcrypt
-dnspython
 cloudinary
+dnspython
