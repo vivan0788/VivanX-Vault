@@ -22,24 +22,36 @@ cloudinary.config(
   api_secret = os.environ.get("CLOUDINARY_API_SECRET")
 )
 
+# Registration Secret Key
 REGISTRATION_SECRET = "AVINASH_2026"
 
 @app.route('/')
 def home():
     if 'username' in session: return redirect(url_for('dashboard'))
-    return render_template('login.html')
+    return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         users = mongo.db.users
         uname = request.form.get('username')
-        if users.find_one({"username": uname}): return "User exists!"
+        pwd = request.form.get('password')
+        u_secret = request.form.get('secret_key')
+
+        if u_secret != REGISTRATION_SECRET:
+            return "❌ Invalid Secret Key! Registration Failed."
+
+        if users.find_one({"username": uname}): 
+            return "❌ User already exists!"
         
-        hashed_pw = bcrypt.hashpw(request.form.get('password').encode('utf-8'), bcrypt.gensalt())
+        hashed_pw = bcrypt.hashpw(pwd.encode('utf-8'), bcrypt.gensalt())
         users.insert_one({
-            "username": uname, "password": hashed_pw,
-            "vault": {"passwords":[], "notes":[], "contacts":[], "media":{"images":[], "videos":[], "audio":[]}}
+            "username": uname, 
+            "password": hashed_pw,
+            "vault": {
+                "passwords":[], "notes":[], "contacts":[], 
+                "media":{"images":[], "videos":[], "audio":[]}
+            }
         })
         return redirect(url_for('login'))
     return render_template('register.html')
@@ -57,8 +69,14 @@ def login():
 def dashboard():
     if 'username' not in session: return redirect(url_for('login'))
     user_data = mongo.db.users.find_one({"username": session['username']})
-    return render_template('dashboard.html', username=session['username'], vault=user_data.get('vault'))
+    
+    vault = user_data.get('vault', {})
+    if 'media' not in vault:
+        vault['media'] = {"images": [], "videos": [], "audio": []}
+        
+    return render_template('dashboard.html', username=session['username'], vault=vault)
 
+# --- Add Data Routes ---
 @app.route('/add_contact', methods=['POST'])
 def add_contact():
     mongo.db.users.update_one({"username": session['username']}, 
