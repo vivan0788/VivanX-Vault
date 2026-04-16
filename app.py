@@ -6,7 +6,7 @@ import cloudinary
 import cloudinary.uploader
 
 app = Flask(__name__, template_folder='templates')
-app.secret_key = "neon_vault_vivanx_2026"
+app.secret_key = "vivanx_ultra_secure_2026"
 
 # MongoDB Config
 uri = os.environ.get("MONGO_URI")
@@ -15,44 +15,31 @@ if not uri:
 app.config["MONGO_URI"] = uri
 mongo = PyMongo(app)
 
+# Cloudinary Config (secure=True added for SSL fix)
 cloudinary.config(
   cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME"),
   api_key = os.environ.get("CLOUDINARY_API_KEY"),
   api_secret = os.environ.get("CLOUDINARY_API_SECRET"),
-  secure = True  # Isse "Not Secure" warning chali jayegi
+  secure = True 
 )
 
-# Registration Secret Key
 REGISTRATION_SECRET = "AVINASH_2026"
 
 @app.route('/')
 def home():
-    # Agar user pehle se login hai, toh seedha dashboard bhejo
-    if 'username' in session: 
-        return redirect(url_for('dashboard'))
-    # Nahi toh Landing Page dikhao
+    if 'username' in session: return redirect(url_for('dashboard'))
     return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         users = mongo.db.users
-        uname = request.form.get('username')
-        pwd = request.form.get('password')
-        u_secret = request.form.get('secret_key')
-
-        if u_secret != REGISTRATION_SECRET:
-            return "❌ Invalid Secret Key! Registration Failed."
-
-        if users.find_one({"username": uname}): 
-            return "❌ User already exists!"
+        uname, pwd, u_sec = request.form.get('username'), request.form.get('password'), request.form.get('secret_key')
+        if u_sec != REGISTRATION_SECRET: return "❌ Invalid Secret Key!"
+        if users.find_one({"username": uname}): return "❌ User exists!"
         
         hashed_pw = bcrypt.hashpw(pwd.encode('utf-8'), bcrypt.gensalt())
-        users.insert_one({
-            "username": uname, 
-            "password": hashed_pw,
-            "vault": {"passwords":[], "notes":[], "contacts":[], "media":{"images":[], "videos":[], "audio":[]}}
-        })
+        users.insert_one({"username": uname, "password": hashed_pw, "vault": {"passwords":[], "notes":[], "contacts":[], "media":{"images":[], "videos":[], "audio":[]}}})
         return redirect(url_for('login'))
     return render_template('register.html')
 
@@ -69,41 +56,43 @@ def login():
 def dashboard():
     if 'username' not in session: return redirect(url_for('login'))
     user_data = mongo.db.users.find_one({"username": session['username']})
-    
-    # Crash Protection: Empty data agar field missing ho
-    vault = user_data.get('vault', {})
-    if 'media' not in vault:
-        vault['media'] = {"images": [], "videos": [], "audio": []}
-        
+    vault = user_data.get('vault', {"contacts":[], "notes":[], "passwords":[], "media":{"images":[], "videos":[], "audio":[]}})
     return render_template('dashboard.html', username=session['username'], vault=vault)
 
-@app.route('/add_contact', methods=['POST'])
-def add_contact():
-    mongo.db.users.update_one({"username": session['username']}, 
-        {"$push": {"vault.contacts": {"name": request.form.get('name'), "phone": request.form.get('phone')}}})
+# --- Action Routes ---
+@app.route('/add/<type>', methods=['POST'])
+def add_data(type):
+    data = {}
+    if type == 'contact': data = {"name": request.form.get('name'), "phone": request.form.get('phone')}
+    elif type == 'note': data = {"title": request.form.get('title'), "content": request.form.get('content')}
+    elif type == 'pass': data = {"site": request.form.get('site'), "pass": request.form.get('acc_pass')}
+    
+    mongo.db.users.update_one({"username": session['username']}, {"$push": {f"vault.{type}s": data}})
     return redirect(url_for('dashboard'))
 
-@app.route('/add_note', methods=['POST'])
-def add_note():
-    mongo.db.users.update_one({"username": session['username']}, 
-        {"$push": {"vault.notes": {"title": request.form.get('title'), "content": request.form.get('content')}}})
-    return redirect(url_for('dashboard'))
-
-@app.route('/add_password', methods=['POST'])
-def add_password():
-    mongo.db.users.update_one({"username": session['username']}, 
-        {"$push": {"vault.passwords": {"site": request.form.get('site'), "pass": request.form.get('acc_pass')}}})
-    return redirect(url_for('dashboard'))
-
-@app.route('/upload_media', methods=['POST'])
-def upload_media():
+@app.route('/upload', methods=['POST'])
+def upload():
     file = request.files.get('file')
     if file:
         res = cloudinary.uploader.upload(file, resource_type="auto")
-        url, r_type = res.get('url'), res.get('resource_type')
-        cat = "images" if "image" in r_type else "videos" if "video" in r_type else "audio"
-        mongo.db.users.update_one({"username": session['username']}, 
-            {"$push": {f"vault.media.{cat}": {"name": file.filename, "url": url}}})
+        cat = "images" if "image" in res['resource_type'] else "videos" if "video" in res['resource_type'] else "audio"
+        mongo.db.users.update_one({"username": session['username']}, {"$push": {f"vault.media.{cat}": {"url": res['url']}}})
+    return redirect(url_for('dashboard'))
+
+# --- Delete Routes ---
+@app.route('/delete/<type>/<int:idx>')
+@app.route('/delete_media/<cat>/<int:idx>')
+def delete_item(type=None, cat=None, idx=None):
+    field = f"vault.{type}s" if type else f"vault.media.{cat}"
+    user = mongo.db.users.find_one({"username": session['username']})
+    # Nested navigation to get the list
+    path = field.split('.')
+    target_list = user
+    for p in path: target_list = target_list[p]
+    
+    if 0 <= idx < len(target_list):
+        target_list.pop(idx)
+        mongo.db.users.update_one({"username": session['username']}, {"$set": {field: target_list}})
     return redirect(url_for('dashboard'))
 
 @app.route('/logout')
