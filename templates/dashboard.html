@@ -2,85 +2,134 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VivanX Vault</title>
+    <title>VivanX Vault - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --c: #00f3ff; --p: #ff00ff; --b: #050505; }
         body { background: var(--b); color: #fff; font-family: sans-serif; margin: 0; }
-        .nav { padding: 15px; border-bottom: 1px solid var(--c); display: flex; justify-content: space-between; align-items: center; }
-        .tabs { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #111; }
-        .tab-btn { background: #222; border: 1px solid #333; color: #fff; padding: 10px 15px; border-radius: 20px; white-space: nowrap; cursor: pointer; }
-        .tab-btn.active { border-color: var(--c); color: var(--c); box-shadow: 0 0 10px rgba(0,243,255,0.3); }
-        .section { display: none; padding: 20px; }
+        .nav { padding: 15px; border-bottom: 1px solid var(--c); display: flex; justify-content: space-between; align-items: center; background: #0a0a0a; }
+        .tabs { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #111; position: sticky; top: 0; z-index: 100; }
+        .tab-btn { background: #222; border: 1px solid #333; color: #fff; padding: 10px 18px; border-radius: 20px; white-space: nowrap; cursor: pointer; font-size: 0.9em; }
+        .tab-btn.active { border-color: var(--c); color: var(--c); box-shadow: 0 0 10px rgba(0,243,255,0.2); }
+        .section { display: none; padding: 20px; animation: fadeIn 0.3s; }
         .section.active { display: block; }
-        .box { background: #111; padding: 15px; border-radius: 10px; border: 1px solid #222; margin-bottom: 15px; }
-        input, textarea { width: 100%; padding: 12px; margin: 5px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 5px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; background: var(--c); border: none; font-weight: bold; border-radius: 5px; cursor: pointer; }
-        .card { background: #1a1a1a; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--c); }
-        .media-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
-        .m-item img, .m-item video { width: 100%; border-radius: 8px; border: 1px solid #333; object-fit: cover; aspect-ratio: 1/1; }
+        @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+        
+        .box { background: #111; padding: 15px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--c); }
+        .btn { width: 100%; padding: 12px; background: var(--c); border: none; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
+
+        .card { background: #161616; padding: 15px; border-radius: 10px; margin-bottom: 12px; border-left: 4px solid var(--c); display: flex; justify-content: space-between; align-items: center; }
+        .del-btn { color: #ff4444; text-decoration: none; padding: 5px 10px; font-size: 1.2em; transition: 0.2s; }
+        .del-btn:hover { color: #ff8888; }
+
+        .media-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
+        .m-item { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid #222; aspect-ratio: 1/1; background: #000; }
+        .m-item img, .m-item video { width: 100%; height: 100%; object-fit: cover; }
+        .m-del { position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.8); color: white; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; font-weight: bold; }
+        
+        .audio-card { grid-column: span 2; background: #111; padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 10px; border: 1px solid #222; }
     </style>
 </head>
 <body>
     <div class="nav">
-        <span style="color:var(--c); font-weight: bold;">VIVANX VAULT</span>
-        <a href="/logout" style="color:var(--p); text-decoration: none; font-size: 0.9em;">LOGOUT</a>
+        <span style="color:var(--c); font-weight: bold; letter-spacing: 1px;">VIVANX VAULT</span>
+        <a href="/logout" style="color:var(--p); text-decoration: none; font-size: 0.85em; font-weight: bold;">LOGOUT</a>
     </div>
     
     <div class="tabs">
-        <button class="tab-btn active" onclick="tab(event, 'contacts')">Contacts</button>
-        <button class="tab-btn" onclick="tab(event, 'notes')">Notes</button>
-        <button class="tab-btn" onclick="tab(event, 'pass')">Passwords</button>
-        <button class="tab-btn" onclick="tab(event, 'media')">Media</button>
+        <button class="tab-btn active" onclick="tab(event, 'contacts')"><i class="fas fa-address-book"></i> Contacts</button>
+        <button class="tab-btn" onclick="tab(event, 'notes')"><i class="fas fa-sticky-note"></i> Notes</button>
+        <button class="tab-btn" onclick="tab(event, 'pass')"><i class="fas fa-key"></i> Passwords</button>
+        <button class="tab-btn" onclick="tab(event, 'media')"><i class="fas fa-photo-video"></i> Media</button>
     </div>
 
     <div id="contacts" class="section active">
-        <form class="box" action="/add_contact" method="POST">
-            <input name="name" placeholder="Name" required>
+        <form class="box" action="/add/contact" method="POST">
+            <input name="name" placeholder="Contact Name" required>
             <input name="phone" placeholder="Phone Number" required>
             <button class="btn">Add Contact</button>
         </form>
-        {% for c in vault.contacts %}<div class="card"><b>{{c.name}}</b><br>{{c.phone}}</div>{% endfor %}
+        {% for c in vault.contacts %}
+        <div class="card">
+            <div><b>{{c.name}}</b><br><small style="color:#888">{{c.phone}}</small></div>
+            <a href="/delete/contact/{{loop.index0}}" class="del-btn" onclick="return confirm('Delete this contact?')">×</a>
+        </div>
+        {% endfor %}
     </div>
 
     <div id="notes" class="section">
-        <form class="box" action="/add_note" method="POST">
+        <form class="box" action="/add/note" method="POST">
             <input name="title" placeholder="Note Title" required>
-            <textarea name="content" placeholder="Type your note here..." rows="4"></textarea>
+            <textarea name="content" placeholder="Write your note..." rows="4" required></textarea>
             <button class="btn">Save Note</button>
         </form>
-        {% for n in vault.notes %}<div class="card"><b>{{n.title}}</b><br>{{n.content}}</div>{% endfor %}
+        {% for n in vault.notes %}
+        <div class="card" style="flex-direction: column; align-items: flex-start;">
+            <div style="width: 100%; display: flex; justify-content: space-between;">
+                <b>{{n.title}}</b>
+                <a href="/delete/note/{{loop.index0}}" class="del-btn" onclick="return confirm('Delete this note?')">×</a>
+            </div>
+            <p style="margin: 5px 0 0; color:#bbb; font-size: 0.9em;">{{n.content}}</p>
+        </div>
+        {% endfor %}
     </div>
 
     <div id="pass" class="section">
-        <form class="box" action="/add_password" method="POST">
+        <form class="box" action="/add/pass" method="POST">
             <input name="site" placeholder="Website/App Name" required>
             <input name="acc_pass" type="password" placeholder="Password" required>
-            <button class="btn">Secure Save</button>
+            <button class="btn">Save Securely</button>
         </form>
-        {% for p in vault.passwords %}<div class="card"><b>{{p.site}}</b><br><span style="color:#666">•••••••• (Hidden)</span></div>{% endfor %}
+        {% for p in vault.passwords %}
+        <div class="card">
+            <div><b>{{p.site}}</b><br><code style="color:var(--c)">*******</code></div>
+            <a href="/delete/pass/{{loop.index0}}" class="del-btn" onclick="return confirm('Delete this password?')">×</a>
+        </div>
+        {% endfor %}
     </div>
 
     <div id="media" class="section">
-        <form class="box" action="/upload_media" method="POST" enctype="multipart/form-data">
+        <form class="box" action="/upload" method="POST" enctype="multipart/form-data">
             <input type="file" name="file" required>
-            <button class="btn" style="background:var(--p); color:#fff">Upload to Cloud</button>
+            <button class="btn" style="background:var(--p); color:white;">Upload to Cloud</button>
         </form>
+        
         <div class="media-grid">
-            {% for img in vault.media.images %}<div class="m-item"><img src="{{img.url}}"></div>{% endfor %}
-            {% for vid in vault.media.videos %}<div class="m-item"><video src="{{vid.url}}" controls></video></div>{% endfor %}
-            {% for aud in vault.media.audio %}<div class="m-item" style="grid-column: span 2;"><audio src="{{aud.url}}" controls style="width:100%"></audio></div>{% endfor %}
+            {% for img in vault.media.images %}
+            <div class="m-item">
+                <img src="{{img.url}}" loading="lazy">
+                <a href="/delete_media/images/{{loop.index0}}" class="m-del" onclick="return confirm('Delete image?')">×</a>
+            </div>
+            {% endfor %}
+
+            {% for vid in vault.media.videos %}
+            <div class="m-item">
+                <video src="{{vid.url}}" controls></video>
+                <a href="/delete_media/videos/{{loop.index0}}" class="m-del" onclick="return confirm('Delete video?')">×</a>
+            </div>
+            {% endfor %}
+
+            {% for aud in vault.media.audio %}
+            <div class="audio-card">
+                <audio src="{{aud.url}}" controls style="flex-grow: 1;"></audio>
+                <a href="/delete_media/audio/{{loop.index0}}" style="color:red; text-decoration:none; padding:10px;">×</a>
+            </div>
+            {% endfor %}
         </div>
     </div>
 
     <script>
-        function tab(evt, sectionName) {
-            var i, section, tablinks;
-            section = document.getElementsByClassName("section");
-            for (i = 0; i < section.length; i++) { section[i].style.display = "none"; }
-            tablinks = document.getElementsByClassName("tab-btn");
-            for (i = 0; i < tablinks.length; i++) { tablinks[i].className = tablinks[i].className.replace(" active", ""); }
-            document.getElementById(sectionName).style.display = "block";
+        function tab(evt, name) {
+            var i, x, btn;
+            x = document.getElementsByClassName("section");
+            for (i = 0; i < x.length; i++) { x[i].style.display = "none"; x[i].className = x[i].className.replace(" active", ""); }
+            btn = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < btn.length; i++) { btn[i].className = btn[i].className.replace(" active", ""); }
+            document.getElementById(name).style.display = "block";
+            document.getElementById(name).className += " active";
             evt.currentTarget.className += " active";
         }
     </script>
