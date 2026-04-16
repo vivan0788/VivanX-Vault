@@ -15,11 +15,11 @@ if not uri:
 app.config["MONGO_URI"] = uri
 mongo = PyMongo(app)
 
-# Cloudinary Config
 cloudinary.config(
   cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME"),
   api_key = os.environ.get("CLOUDINARY_API_KEY"),
-  api_secret = os.environ.get("CLOUDINARY_API_SECRET")
+  api_secret = os.environ.get("CLOUDINARY_API_SECRET"),
+  secure = True  # Isse "Not Secure" warning chali jayegi
 )
 
 # Registration Secret Key
