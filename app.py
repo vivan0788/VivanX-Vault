@@ -27,8 +27,11 @@ REGISTRATION_SECRET = "AVINASH_2026"
 
 @app.route('/')
 def home():
-    if 'username' in session: return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
+    # Agar user pehle se login hai, toh seedha dashboard bhejo
+    if 'username' in session: 
+        return redirect(url_for('dashboard'))
+    # Nahi toh Landing Page dikhao
+    return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
